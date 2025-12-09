@@ -21,11 +21,12 @@ When you run the CF CLI to scaffold a new project, it generates the following fo
 
 ```
 MyCleanArchitectureProject/
-├── src/
-│   ├── MyCleanArchitectureProject.Domain/
-│   ├── MyCleanArchitectureProject.Application/
-│   ├── MyCleanArchitectureProject.Infrastructure/
-│   └── MyCleanArchitectureProject.API/
+├── MyCleanArchitectureProject.Domain/
+├── MyCleanArchitectureProject.Application/
+├── MyCleanArchitectureProject.Infrastructure/
+├── MyCleanArchitectureProject.API/
+└── MyCleanArchitectureProject.sln
+
 
 ```
 - `Domain`: Contains the core business logic and entities.
