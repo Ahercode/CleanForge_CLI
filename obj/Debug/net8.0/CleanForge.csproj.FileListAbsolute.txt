@@ -1,0 +1,14 @@
+/Users/ahercode/RiderProjects/CleanForge/obj/Debug/net8.0/CleanForge.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ahercode/RiderProjects/CleanForge/obj/Debug/net8.0/CleanForge.AssemblyInfoInputs.cache
+/Users/ahercode/RiderProjects/CleanForge/obj/Debug/net8.0/CleanForge.AssemblyInfo.cs
+/Users/ahercode/RiderProjects/CleanForge/obj/Debug/net8.0/CleanForge.csproj.CoreCompileInputs.cache
+/Users/ahercode/RiderProjects/CleanForge/bin/Debug/net8.0/CleanForge
+/Users/ahercode/RiderProjects/CleanForge/bin/Debug/net8.0/CleanForge.deps.json
+/Users/ahercode/RiderProjects/CleanForge/bin/Debug/net8.0/CleanForge.runtimeconfig.json
+/Users/ahercode/RiderProjects/CleanForge/bin/Debug/net8.0/CleanForge.dll
+/Users/ahercode/RiderProjects/CleanForge/bin/Debug/net8.0/CleanForge.pdb
+/Users/ahercode/RiderProjects/CleanForge/obj/Debug/net8.0/CleanForge.dll
+/Users/ahercode/RiderProjects/CleanForge/obj/Debug/net8.0/refint/CleanForge.dll
+/Users/ahercode/RiderProjects/CleanForge/obj/Debug/net8.0/CleanForge.pdb
+/Users/ahercode/RiderProjects/CleanForge/obj/Debug/net8.0/CleanForge.genruntimeconfig.cache
+/Users/ahercode/RiderProjects/CleanForge/obj/Debug/net8.0/ref/CleanForge.dll

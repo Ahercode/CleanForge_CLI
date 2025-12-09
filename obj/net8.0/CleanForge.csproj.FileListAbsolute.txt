@@ -1,0 +1,4 @@
+/Users/ahercode/RiderProjects/CleanForge/obj/net8.0/CleanForge.GeneratedMSBuildEditorConfig.editorconfig
+/Users/ahercode/RiderProjects/CleanForge/obj/net8.0/CleanForge.AssemblyInfoInputs.cache
+/Users/ahercode/RiderProjects/CleanForge/obj/net8.0/CleanForge.AssemblyInfo.cs
+/Users/ahercode/RiderProjects/CleanForge/obj/net8.0/CleanForge.csproj.CoreCompileInputs.cache
