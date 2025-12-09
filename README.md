@@ -46,26 +46,6 @@ The generated project includes essential configurations for a Clean Architecture
 - **Clean folder boundaries** to enforce separation of concerns.
 - **Plug-and-play architecture** for easy extension and modification.
 - **Docker Support** with Dockerfiles for containerizing the application.
-
----
-## 🕹️ Usage
-
-1. **Install CF CLI**:  
-   You can install CF CLI via NuGet or download the binary from the [releases page]
-2. **Scaffold a new project**:  
-   Open your terminal and run the following command to create a new Clean Architecture project:
-   ```
-   cfcli create MyCleanArchitectureProject
-   ```
-3. **Navigate to your project**:  
-   ```
-    cd MyCleanArchitectureProject
-    ```
-4. **Build and run your project**:
-   ```
-    dotnet build
-    dotnet run --project src/MyCleanArchitectureProject.API/MyCleanArchitectureProject.API.csproj
-    ```
    
 ---
 
