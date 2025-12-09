@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "raOC1PtbQ5E=",
+  "success": true,
+  "projectFilePath": "/Users/ahercode/RiderProjects/CleanForge/CleanForge.csproj",
+  "expectedPackageFiles": [
+    "/Users/ahercode/.nuget/packages/microsoft.netcore.app.ref/8.0.17/microsoft.netcore.app.ref.8.0.17.nupkg.sha512",
+    "/Users/ahercode/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.17/microsoft.aspnetcore.app.ref.8.0.17.nupkg.sha512",
+    "/Users/ahercode/.nuget/packages/microsoft.netcore.app.host.osx-x64/8.0.17/microsoft.netcore.app.host.osx-x64.8.0.17.nupkg.sha512"
+  ],
+  "logs": []
+}
