@@ -15,7 +15,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyDescriptionAttribute(("Generates a Clean Architecture .NET 8 project with CQRS, MediatR, FluentValidatio" +
     "n"))]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+88280fa37cdfdb2c6d8c89de265bb15bba880175")]
 [assembly: System.Reflection.AssemblyProductAttribute("CleanForge")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CleanForge")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
