@@ -15,6 +15,45 @@ CF CLI helps you generate a production-ready folder structure, boilerplate code,
 
 ---
 
+## 📥 Installation
+
+Install CleanForge as a global .NET tool:
+
+```bash
+dotnet tool install -g CleanForge.Scaffold
+```
+
+To update to the latest version:
+
+```bash
+dotnet tool update -g CleanForge.Scaffold
+```
+
+---
+
+## 💻 Usage
+
+Scaffold a new Clean Architecture project:
+
+```bash
+cleanforge --name MyProject --output ./MyProject
+```
+
+| Option     | Description                          | Default              |
+|------------|--------------------------------------|----------------------|
+| `--name`   | Name of the project to generate      | `CleanForgeProject`  |
+| `--output` | Output directory for the project     | Current directory    |
+
+Then get started with your new project:
+
+```bash
+cd MyProject
+dotnet restore
+dotnet run --project MyProject.API
+```
+
+---
+
 ## 🏗️ Project Structure Generated
 
 When you run the CF CLI to scaffold a new project, it generates the following folder structure:
