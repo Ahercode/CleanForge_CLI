@@ -5,7 +5,7 @@
   },
   "projects": {
     "/Users/ahercode/RiderProjects/CleanForge/CleanForge.csproj": {
-      "version": "1.0.0",
+      "version": "1.0.1",
       "restore": {
         "projectUniqueName": "/Users/ahercode/RiderProjects/CleanForge/CleanForge.csproj",
         "projectName": "CleanForge.Scaffold",

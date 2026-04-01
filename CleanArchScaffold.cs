@@ -81,24 +81,47 @@ class CleanArchScaffold
     
     private void CreateSolutionFile()
     {
+        var domainGuid = Guid.NewGuid().ToString("B").ToUpper();
+        var applicationGuid = Guid.NewGuid().ToString("B").ToUpper();
+        var infrastructureGuid = Guid.NewGuid().ToString("B").ToUpper();
+        var apiGuid = Guid.NewGuid().ToString("B").ToUpper();
+
         var slnContent = $@"
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-Project(""{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}"") = ""{_projectName}.Domain"", ""{_projectName}.Domain\{_projectName}.Domain.csproj"", ""{{GUID-DOMAIN}}""
+Project(""{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}"") = ""{_projectName}.Domain"", ""{_projectName}.Domain\{_projectName}.Domain.csproj"", ""{domainGuid}""
 EndProject
-Project(""{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}"") = ""{_projectName}.Application"", ""{_projectName}.Application\{_projectName}.Application.csproj"", ""{{GUID-APPLICATION}}""
+Project(""{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}"") = ""{_projectName}.Application"", ""{_projectName}.Application\{_projectName}.Application.csproj"", ""{applicationGuid}""
 EndProject
-Project(""{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}"") = ""{_projectName}.Infrastructure"", ""{_projectName}.Infrastructure\{_projectName}.Infrastructure.csproj"", ""{{GUID-INFRASTRUCTURE}}""
+Project(""{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}"") = ""{_projectName}.Infrastructure"", ""{_projectName}.Infrastructure\{_projectName}.Infrastructure.csproj"", ""{infrastructureGuid}""
 EndProject
-Project(""{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}"") = ""{_projectName}.Api"", ""{_projectName}.Api\{_projectName}.Api.csproj"", ""{{GUID-API}}""
+Project(""{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}"") = ""{_projectName}.Api"", ""{_projectName}.Api\{_projectName}.Api.csproj"", ""{apiGuid}""
 EndProject
 Global
     GlobalSection(SolutionConfigurationPlatforms) = preSolution
         Debug|Any CPU = Debug|Any CPU
         Release|Any CPU = Release|Any CPU
     EndGlobalSection
+    GlobalSection(ProjectConfigurationPlatforms) = postSolution
+        {domainGuid}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {domainGuid}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {domainGuid}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {domainGuid}.Release|Any CPU.Build.0 = Release|Any CPU
+        {applicationGuid}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {applicationGuid}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {applicationGuid}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {applicationGuid}.Release|Any CPU.Build.0 = Release|Any CPU
+        {infrastructureGuid}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {infrastructureGuid}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {infrastructureGuid}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {infrastructureGuid}.Release|Any CPU.Build.0 = Release|Any CPU
+        {apiGuid}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+        {apiGuid}.Debug|Any CPU.Build.0 = Debug|Any CPU
+        {apiGuid}.Release|Any CPU.ActiveCfg = Release|Any CPU
+        {apiGuid}.Release|Any CPU.Build.0 = Release|Any CPU
+    EndGlobalSection
 EndGlobal";
-        
+
         File.WriteAllText($"{_solutionPath}/{_projectName}.sln", slnContent);
     }
     
@@ -226,13 +249,15 @@ EndGlobal";
     private string GetDomainCsproj() => @"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
 </Project>";
-    
+
     private string GetApplicationCsproj() => $@"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
@@ -249,6 +274,7 @@ EndGlobal";
     private string GetInfrastructureCsproj() => $@"<Project Sdk=""Microsoft.NET.Sdk"">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
@@ -265,6 +291,7 @@ EndGlobal";
     private string GetApiCsproj() => $@"<Project Sdk=""Microsoft.NET.Sdk.Web"">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
