@@ -7,7 +7,7 @@
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>cleanforge</ToolCommandName>
     <PackageId>CleanForge.Scaffold</PackageId>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <Authors>Philip Ladzaka</Authors>
     <Description>Generates a Clean Architecture .NET 8 project with CQRS, MediatR, FluentValidation</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
