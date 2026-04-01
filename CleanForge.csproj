@@ -8,9 +8,19 @@
     <ToolCommandName>cleanforge</ToolCommandName>
     <PackageId>CleanForge.Scaffold</PackageId>
     <Version>1.0.0</Version>
-    <Authors>YourName</Authors>
+    <Authors>Philip Ladzaka</Authors>
     <Description>Generates a Clean Architecture .NET 8 project with CQRS, MediatR, FluentValidation</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/Ahercode/CleanForge_CLI</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Ahercode/CleanForge_CLI.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>dotnet;clean-architecture;scaffold;cqrs;mediatr;template</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.DotNet.ILCompiler" Version="8.0.0" Condition="'$(RuntimeIdentifier)' != ''" />
