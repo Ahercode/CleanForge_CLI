@@ -48,6 +48,7 @@ class CleanArchScaffold
             $"{_solutionPath}/{_projectName}.Infrastructure/Repositories",
             $"{_solutionPath}/{_projectName}.Api",
             $"{_solutionPath}/{_projectName}.Api/Controllers",
+            $"{_solutionPath}/{_projectName}.Api/Properties",
         };
         
         foreach (var dir in dirs)
@@ -243,6 +244,11 @@ EndGlobal";
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Api/appsettings.json",
             GetAppSettingsCode());
+
+        // launchSettings.json
+        File.WriteAllText(
+            $"{_solutionPath}/{_projectName}.Api/Properties/launchSettings.json",
+            GetLaunchSettingsCode());
     }
     
     // Project file templates
@@ -864,6 +870,21 @@ public class ProductsController : ControllerBase
 }}";
     
         private string GetAppSettingsCode() => $"{{\n  \"ConnectionStrings\": {{\n    \"DefaultConnection\": \"Server=(localdb)\\\\mssqllocaldb;Database={_projectName};Trusted_Connection=True;\"\n  }},\n  \"Logging\": {{\n    \"LogLevel\": {{\n      \"Default\": \"Information\",\n      \"Microsoft\": \"Warning\",\n      \"Microsoft.Hosting.Lifetime\": \"Information\"\n    }}\n  }},\n  \"AllowedHosts\": \"*\"\n}}";
+
+    private string GetLaunchSettingsCode() => $@"{{
+  ""profiles"": {{
+    ""{_projectName}.Api"": {{
+      ""commandName"": ""Project"",
+      ""dotnetRunMessages"": true,
+      ""launchBrowser"": true,
+      ""launchUrl"": ""swagger"",
+      ""applicationUrl"": ""https://localhost:5001;http://localhost:5000"",
+      ""environmentVariables"": {{
+        ""ASPNETCORE_ENVIRONMENT"": ""Development""
+      }}
+    }}
+  }}
+}}";
 
 }
     
