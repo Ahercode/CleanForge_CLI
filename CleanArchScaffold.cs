@@ -1,19 +1,32 @@
 using System;
 using System.IO;
+using CleanForge.Templates;
 
 class CleanArchScaffold
 {
     private readonly string _projectName;
     private readonly string _outputPath;
     private readonly string _solutionPath;
-    
+
+    private readonly ProjectTemplates _projectTemplates;
+    private readonly DomainTemplates _domainTemplates;
+    private readonly ApplicationTemplates _applicationTemplates;
+    private readonly InfrastructureTemplates _infrastructureTemplates;
+    private readonly ApiTemplates _apiTemplates;
+
     public CleanArchScaffold(string projectName, string outputPath)
     {
         _projectName = projectName;
         _outputPath = outputPath;
         _solutionPath = Path.Combine(outputPath, projectName);
+
+        _projectTemplates = new ProjectTemplates(projectName);
+        _domainTemplates = new DomainTemplates(projectName);
+        _applicationTemplates = new ApplicationTemplates(projectName);
+        _infrastructureTemplates = new InfrastructureTemplates(projectName);
+        _apiTemplates = new ApiTemplates(projectName);
     }
-    
+
     public void Generate()
     {
         CreateDirectoryStructure();
@@ -22,7 +35,7 @@ class CleanArchScaffold
         CreateSourceFiles();
         Console.WriteLine("\nGenerating files...");
     }
-    
+
     private void CreateDirectoryStructure()
     {
         var dirs = new[]
@@ -43,43 +56,41 @@ class CleanArchScaffold
             $"{_solutionPath}/{_projectName}.Application/Common",
             $"{_solutionPath}/{_projectName}.Application/Common/Behaviours",
             $"{_solutionPath}/{_projectName}.Application/Common/Interfaces",
+            $"{_solutionPath}/{_projectName}.Application/Common/Models",
             $"{_solutionPath}/{_projectName}.Infrastructure",
             $"{_solutionPath}/{_projectName}.Infrastructure/Data",
             $"{_solutionPath}/{_projectName}.Infrastructure/Repositories",
             $"{_solutionPath}/{_projectName}.Api",
             $"{_solutionPath}/{_projectName}.Api/Controllers",
+            $"{_solutionPath}/{_projectName}.Api/Middleware",
             $"{_solutionPath}/{_projectName}.Api/Properties",
         };
-        
+
         foreach (var dir in dirs)
         {
             Directory.CreateDirectory(dir);
         }
     }
-    
+
     private void CreateProjectFiles()
     {
-        // Domain project
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Domain/{_projectName}.Domain.csproj",
-            GetDomainCsproj());
-        
-        // Application project
+            _projectTemplates.GetDomainCsproj());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Application/{_projectName}.Application.csproj",
-            GetApplicationCsproj());
-        
-        // Infrastructure project
+            _projectTemplates.GetApplicationCsproj());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Infrastructure/{_projectName}.Infrastructure.csproj",
-            GetInfrastructureCsproj());
-        
-        // API project
+            _projectTemplates.GetInfrastructureCsproj());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Api/{_projectName}.Api.csproj",
-            GetApiCsproj());
+            _projectTemplates.GetApiCsproj());
     }
-    
+
     private void CreateSolutionFile()
     {
         var domainGuid = Guid.NewGuid().ToString("B").ToUpper();
@@ -87,804 +98,119 @@ class CleanArchScaffold
         var infrastructureGuid = Guid.NewGuid().ToString("B").ToUpper();
         var apiGuid = Guid.NewGuid().ToString("B").ToUpper();
 
-        var slnContent = $@"
-Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-Project(""{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}"") = ""{_projectName}.Domain"", ""{_projectName}.Domain\{_projectName}.Domain.csproj"", ""{domainGuid}""
-EndProject
-Project(""{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}"") = ""{_projectName}.Application"", ""{_projectName}.Application\{_projectName}.Application.csproj"", ""{applicationGuid}""
-EndProject
-Project(""{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}"") = ""{_projectName}.Infrastructure"", ""{_projectName}.Infrastructure\{_projectName}.Infrastructure.csproj"", ""{infrastructureGuid}""
-EndProject
-Project(""{{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}}"") = ""{_projectName}.Api"", ""{_projectName}.Api\{_projectName}.Api.csproj"", ""{apiGuid}""
-EndProject
-Global
-    GlobalSection(SolutionConfigurationPlatforms) = preSolution
-        Debug|Any CPU = Debug|Any CPU
-        Release|Any CPU = Release|Any CPU
-    EndGlobalSection
-    GlobalSection(ProjectConfigurationPlatforms) = postSolution
-        {domainGuid}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-        {domainGuid}.Debug|Any CPU.Build.0 = Debug|Any CPU
-        {domainGuid}.Release|Any CPU.ActiveCfg = Release|Any CPU
-        {domainGuid}.Release|Any CPU.Build.0 = Release|Any CPU
-        {applicationGuid}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-        {applicationGuid}.Debug|Any CPU.Build.0 = Debug|Any CPU
-        {applicationGuid}.Release|Any CPU.ActiveCfg = Release|Any CPU
-        {applicationGuid}.Release|Any CPU.Build.0 = Release|Any CPU
-        {infrastructureGuid}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-        {infrastructureGuid}.Debug|Any CPU.Build.0 = Debug|Any CPU
-        {infrastructureGuid}.Release|Any CPU.ActiveCfg = Release|Any CPU
-        {infrastructureGuid}.Release|Any CPU.Build.0 = Release|Any CPU
-        {apiGuid}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-        {apiGuid}.Debug|Any CPU.Build.0 = Debug|Any CPU
-        {apiGuid}.Release|Any CPU.ActiveCfg = Release|Any CPU
-        {apiGuid}.Release|Any CPU.Build.0 = Release|Any CPU
-    EndGlobalSection
-EndGlobal";
-
+        var slnContent = _projectTemplates.GetSolutionFile(domainGuid, applicationGuid, infrastructureGuid, apiGuid);
         File.WriteAllText($"{_solutionPath}/{_projectName}.sln", slnContent);
     }
-    
+
     private void CreateSourceFiles()
     {
-        // Domain Layer
         CreateDomainFiles();
-        
-        // Application Layer
         CreateApplicationFiles();
-        
-        // Infrastructure Layer
         CreateInfrastructureFiles();
-        
-        // API Layer
         CreateApiFiles();
     }
-    
+
     private void CreateDomainFiles()
     {
-        // BaseEntity
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Domain/Common/BaseEntity.cs",
-            GetBaseEntityCode());
-        
-        // Product Entity
+            _domainTemplates.GetBaseEntityCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Domain/Entities/Product.cs",
-            GetProductEntityCode());
+            _domainTemplates.GetProductEntityCode());
     }
-    
+
     private void CreateApplicationFiles()
     {
-        // Common Interfaces
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Application/Common/Interfaces/IRepository.cs",
-            GetIRepositoryCode());
-        
+            _applicationTemplates.GetIRepositoryCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Application/Common/Interfaces/IApplicationDbContext.cs",
-            GetIApplicationDbContextCode());
-        
-        // MediatR Pipeline Behaviours
+            _applicationTemplates.GetIApplicationDbContextCode());
+
+        File.WriteAllText(
+            $"{_solutionPath}/{_projectName}.Application/Common/Models/PagedResult.cs",
+            _applicationTemplates.GetPagedResultCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Application/Common/Behaviours/ValidationBehaviour.cs",
-            GetValidationBehaviourCode());
-        
+            _applicationTemplates.GetValidationBehaviourCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Application/Common/Behaviours/LoggingBehaviour.cs",
-            GetLoggingBehaviourCode());
-        
-        // DependencyInjection
+            _applicationTemplates.GetLoggingBehaviourCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Application/DependencyInjection.cs",
-            GetApplicationDICode());
-        
-        // Commands with Validators
+            _applicationTemplates.GetApplicationDICode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Application/Products/Commands/CreateProduct/CreateProductCommand.cs",
-            GetCreateProductCommandCode());
-        
+            _applicationTemplates.GetCreateProductCommandCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Application/Products/Commands/CreateProduct/CreateProductCommandValidator.cs",
-            GetCreateProductValidatorCode());
-        
+            _applicationTemplates.GetCreateProductValidatorCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Application/Products/Commands/UpdateProduct/UpdateProductCommand.cs",
-            GetUpdateProductCommandCode());
-        
+            _applicationTemplates.GetUpdateProductCommandCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Application/Products/Commands/UpdateProduct/UpdateProductCommandValidator.cs",
-            GetUpdateProductValidatorCode());
-        
+            _applicationTemplates.GetUpdateProductValidatorCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Application/Products/Commands/DeleteProduct/DeleteProductCommand.cs",
-            GetDeleteProductCommandCode());
-        
-        // Queries
+            _applicationTemplates.GetDeleteProductCommandCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Application/Products/Queries/GetProductById/GetProductByIdQuery.cs",
-            GetGetProductByIdQueryCode());
-        
+            _applicationTemplates.GetGetProductByIdQueryCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Application/Products/Queries/GetAllProducts/GetAllProductsQuery.cs",
-            GetGetAllProductsQueryCode());
+            _applicationTemplates.GetGetAllProductsQueryCode());
     }
-    
+
     private void CreateInfrastructureFiles()
     {
-        // AppDbContext
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Infrastructure/Data/AppDbContext.cs",
-            GetAppDbContextCode());
-        
-        // Repository
+            _infrastructureTemplates.GetAppDbContextCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Infrastructure/Repositories/Repository.cs",
-            GetRepositoryCode());
-        
-        // DependencyInjection
+            _infrastructureTemplates.GetRepositoryCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Infrastructure/DependencyInjection.cs",
-            GetInfrastructureDICode());
+            _infrastructureTemplates.GetInfrastructureDICode());
     }
-    
+
     private void CreateApiFiles()
     {
-        // Program.cs
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Api/Program.cs",
-            GetProgramCode());
-        
-        // ProductsController
+            _apiTemplates.GetProgramCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Api/Controllers/ProductsController.cs",
-            GetProductsControllerCode());
-        
-        // appsettings.json
+            _apiTemplates.GetProductsControllerCode());
+
+        File.WriteAllText(
+            $"{_solutionPath}/{_projectName}.Api/Middleware/GlobalExceptionHandler.cs",
+            _apiTemplates.GetGlobalExceptionHandlerCode());
+
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Api/appsettings.json",
-            GetAppSettingsCode());
+            _apiTemplates.GetAppSettingsCode());
 
-        // launchSettings.json
         File.WriteAllText(
             $"{_solutionPath}/{_projectName}.Api/Properties/launchSettings.json",
-            GetLaunchSettingsCode());
+            _apiTemplates.GetLaunchSettingsCode());
     }
-    
-    // Project file templates
-    private string GetDomainCsproj() => @"<Project Sdk=""Microsoft.NET.Sdk"">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-</Project>";
-
-    private string GetApplicationCsproj() => $@"<Project Sdk=""Microsoft.NET.Sdk"">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include=""MediatR"" Version=""12.2.0"" />
-    <PackageReference Include=""FluentValidation"" Version=""11.9.0"" />
-    <PackageReference Include=""FluentValidation.DependencyInjectionExtensions"" Version=""11.9.0"" />
-    <PackageReference Include=""Microsoft.Extensions.Logging.Abstractions"" Version=""8.0.0"" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include=""..\{_projectName}.Domain\{_projectName}.Domain.csproj"" />
-  </ItemGroup>
-</Project>";
-    
-    private string GetInfrastructureCsproj() => $@"<Project Sdk=""Microsoft.NET.Sdk"">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include=""Microsoft.EntityFrameworkCore"" Version=""8.0.0"" />
-    <PackageReference Include=""Microsoft.EntityFrameworkCore.InMemory"" Version=""8.0.0"" />
-    <PackageReference Include=""Microsoft.EntityFrameworkCore.SqlServer"" Version=""8.0.0"" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include=""..\{_projectName}.Domain\{_projectName}.Domain.csproj"" />
-    <ProjectReference Include=""..\{_projectName}.Application\{_projectName}.Application.csproj"" />
-  </ItemGroup>
-</Project>";
-    
-    private string GetApiCsproj() => $@"<Project Sdk=""Microsoft.NET.Sdk.Web"">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include=""Microsoft.AspNetCore.OpenApi"" Version=""8.0.0"" />
-    <PackageReference Include=""Swashbuckle.AspNetCore"" Version=""6.5.0"" />
-    <PackageReference Include=""MediatR"" Version=""12.2.0"" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include=""..\{_projectName}.Infrastructure\{_projectName}.Infrastructure.csproj"" />
-  </ItemGroup>
-</Project>";
-    
-    // Source code templates
-    private string GetBaseEntityCode() => $@"namespace {_projectName}.Domain.Common;
-
-public abstract class BaseEntity
-{{
-    public Guid Id {{ get; set; }} = Guid.NewGuid();
-    public DateTime CreatedAt {{ get; set; }} = DateTime.UtcNow;
-    public DateTime? UpdatedAt {{ get; set; }}
-}}";
-    
-    private string GetProductEntityCode() => $@"using {_projectName}.Domain.Common;
-
-namespace {_projectName}.Domain.Entities;
-
-public class Product : BaseEntity
-{{
-    public string Name {{ get; set; }} = string.Empty;
-    public string Description {{ get; set; }} = string.Empty;
-    public decimal Price {{ get; set; }}
-    public int Stock {{ get; set; }}
-}}";
-    
-    private string GetIRepositoryCode() => $@"namespace {_projectName}.Application.Common.Interfaces;
-
-public interface IRepository<T> where T : class
-{{
-    Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
-    Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default);
-    Task<T> AddAsync(T entity, CancellationToken cancellationToken = default);
-    Task UpdateAsync(T entity, CancellationToken cancellationToken = default);
-    Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
-}}";
-
-    private string GetIApplicationDbContextCode() => $@"using Microsoft.EntityFrameworkCore;
-using {_projectName}.Domain.Entities;
-
-namespace {_projectName}.Application.Common.Interfaces;
-
-public interface IApplicationDbContext
-{{
-    DbSet<Product> Products {{ get; }}
-    Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-}}";
-
-    private string GetValidationBehaviourCode() => $@"using FluentValidation;
-using MediatR;
-
-namespace {_projectName}.Application.Common.Behaviours;
-
-public class ValidationBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
-{{
-    private readonly IEnumerable<IValidator<TRequest>> _validators;
-
-    public ValidationBehaviour(IEnumerable<IValidator<TRequest>> validators)
-    {{
-        _validators = validators;
-    }}
-
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
-    {{
-        if (_validators.Any())
-        {{
-            var context = new ValidationContext<TRequest>(request);
-
-            var validationResults = await Task.WhenAll(
-                _validators.Select(v => v.ValidateAsync(context, cancellationToken)));
-
-            var failures = validationResults
-                .Where(r => r.Errors.Any())
-                .SelectMany(r => r.Errors)
-                .ToList();
-
-            if (failures.Any())
-                throw new ValidationException(failures);
-        }}
-
-        return await next();
-    }}
-}}";
-
-    private string GetLoggingBehaviourCode() => $@"using MediatR;
-using Microsoft.Extensions.Logging;
-
-namespace {_projectName}.Application.Common.Behaviours;
-
-public class LoggingBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : notnull
-{{
-    private readonly ILogger<LoggingBehaviour<TRequest, TResponse>> _logger;
-
-    public LoggingBehaviour(ILogger<LoggingBehaviour<TRequest, TResponse>> logger)
-    {{
-        _logger = logger;
-    }}
-
-    public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken cancellationToken)
-    {{
-        var requestName = typeof(TRequest).Name;
-        
-        _logger.LogInformation(""Handling {{RequestName}}"", requestName);
-
-        var response = await next();
-
-        _logger.LogInformation(""Handled {{RequestName}}"", requestName);
-
-        return response;
-    }}
-}}";
-
-    private string GetApplicationDICode() => $@"using System.Reflection;
-using FluentValidation;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using {_projectName}.Application.Common.Behaviours;
-
-namespace {_projectName}.Application;
-
-public static class DependencyInjection
-{{
-    public static IServiceCollection AddApplication(this IServiceCollection services)
-    {{
-        services.AddMediatR(cfg => {{
-            cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
-            cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(LoggingBehaviour<,>));
-        }});
-
-        services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
-
-        return services;
-    }}
-}}";
-    
-    private string GetCreateProductCommandCode() => $@"using MediatR;
-using {_projectName}.Application.Common.Interfaces;
-using {_projectName}.Domain.Entities;
-
-namespace {_projectName}.Application.Products.Commands.CreateProduct;
-
-public record CreateProductCommand : IRequest<Guid>
-{{
-    public string Name {{ get; init; }} = string.Empty;
-    public string Description {{ get; init; }} = string.Empty;
-    public decimal Price {{ get; init; }}
-    public int Stock {{ get; init; }}
-}}
-
-public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, Guid>
-{{
-    private readonly IRepository<Product> _repository;
-
-    public CreateProductCommandHandler(IRepository<Product> repository)
-    {{
-        _repository = repository;
-    }}
-
-    public async Task<Guid> Handle(CreateProductCommand request, CancellationToken cancellationToken)
-    {{
-        var product = new Product
-        {{
-            Name = request.Name,
-            Description = request.Description,
-            Price = request.Price,
-            Stock = request.Stock
-        }};
-
-        var created = await _repository.AddAsync(product, cancellationToken);
-        return created.Id;
-    }}
-}}";
-
-    private string GetCreateProductValidatorCode() => $@"using FluentValidation;
-
-namespace {_projectName}.Application.Products.Commands.CreateProduct;
-
-public class CreateProductCommandValidator : AbstractValidator<CreateProductCommand>
-{{
-    public CreateProductCommandValidator()
-    {{
-        RuleFor(x => x.Name)
-            .NotEmpty().WithMessage(""Product name is required."")
-            .MaximumLength(200).WithMessage(""Product name must not exceed 200 characters."");
-
-        RuleFor(x => x.Description)
-            .NotEmpty().WithMessage(""Product description is required."")
-            .MaximumLength(1000).WithMessage(""Product description must not exceed 1000 characters."");
-
-        RuleFor(x => x.Price)
-            .GreaterThan(0).WithMessage(""Product price must be greater than 0."");
-
-        RuleFor(x => x.Stock)
-            .GreaterThanOrEqualTo(0).WithMessage(""Product stock cannot be negative."");
-    }}
-}}";
-    
-    private string GetUpdateProductCommandCode() => $@"using MediatR;
-using {_projectName}.Application.Common.Interfaces;
-using {_projectName}.Domain.Entities;
-
-namespace {_projectName}.Application.Products.Commands.UpdateProduct;
-
-public record UpdateProductCommand : IRequest
-{{
-    public Guid Id {{ get; init; }}
-    public string Name {{ get; init; }} = string.Empty;
-    public string Description {{ get; init; }} = string.Empty;
-    public decimal Price {{ get; init; }}
-    public int Stock {{ get; init; }}
-}}
-
-public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand>
-{{
-    private readonly IRepository<Product> _repository;
-
-    public UpdateProductCommandHandler(IRepository<Product> repository)
-    {{
-        _repository = repository;
-    }}
-
-    public async Task Handle(UpdateProductCommand request, CancellationToken cancellationToken)
-    {{
-        var product = await _repository.GetByIdAsync(request.Id, cancellationToken);
-        
-        if (product == null)
-            throw new Exception($""Product with ID {{request.Id}} not found."");
-
-        product.Name = request.Name;
-        product.Description = request.Description;
-        product.Price = request.Price;
-        product.Stock = request.Stock;
-        product.UpdatedAt = DateTime.UtcNow;
-
-        await _repository.UpdateAsync(product, cancellationToken);
-    }}
-}}";
-
-    private string GetUpdateProductValidatorCode() => $@"using FluentValidation;
-
-namespace {_projectName}.Application.Products.Commands.UpdateProduct;
-
-public class UpdateProductCommandValidator : AbstractValidator<UpdateProductCommand>
-{{
-    public UpdateProductCommandValidator()
-    {{
-        RuleFor(x => x.Id)
-            .NotEmpty().WithMessage(""Product ID is required."");
-
-        RuleFor(x => x.Name)
-            .NotEmpty().WithMessage(""Product name is required."")
-            .MaximumLength(200).WithMessage(""Product name must not exceed 200 characters."");
-
-        RuleFor(x => x.Description)
-            .NotEmpty().WithMessage(""Product description is required."")
-            .MaximumLength(1000).WithMessage(""Product description must not exceed 1000 characters."");
-
-        RuleFor(x => x.Price)
-            .GreaterThan(0).WithMessage(""Product price must be greater than 0."");
-
-        RuleFor(x => x.Stock)
-            .GreaterThanOrEqualTo(0).WithMessage(""Product stock cannot be negative."");
-    }}
-}}";
-    
-    private string GetDeleteProductCommandCode() => $@"using MediatR;
-using {_projectName}.Application.Common.Interfaces;
-using {_projectName}.Domain.Entities;
-
-namespace {_projectName}.Application.Products.Commands.DeleteProduct;
-
-public record DeleteProductCommand(Guid Id) : IRequest;
-
-public class DeleteProductCommandHandler : IRequestHandler<DeleteProductCommand>
-{{
-    private readonly IRepository<Product> _repository;
-
-    public DeleteProductCommandHandler(IRepository<Product> repository)
-    {{
-        _repository = repository;
-    }}
-
-    public async Task Handle(DeleteProductCommand request, CancellationToken cancellationToken)
-    {{
-        await _repository.DeleteAsync(request.Id, cancellationToken);
-    }}
-}}";
-    
-    private string GetGetProductByIdQueryCode() => $@"using MediatR;
-using {_projectName}.Application.Common.Interfaces;
-using {_projectName}.Domain.Entities;
-
-namespace {_projectName}.Application.Products.Queries.GetProductById;
-
-public record GetProductByIdQuery(Guid Id) : IRequest<Product?>;
-
-public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, Product?>
-{{
-    private readonly IRepository<Product> _repository;
-
-    public GetProductByIdQueryHandler(IRepository<Product> repository)
-    {{
-        _repository = repository;
-    }}
-
-    public async Task<Product?> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
-    {{
-        return await _repository.GetByIdAsync(request.Id, cancellationToken);
-    }}
-}}";
-    
-    private string GetGetAllProductsQueryCode() => $@"using MediatR;
-using {_projectName}.Application.Common.Interfaces;
-using {_projectName}.Domain.Entities;
-
-namespace {_projectName}.Application.Products.Queries.GetAllProducts;
-
-public record GetAllProductsQuery : IRequest<IEnumerable<Product>>;
-
-public class GetAllProductsQueryHandler : IRequestHandler<GetAllProductsQuery, IEnumerable<Product>>
-{{
-    private readonly IRepository<Product> _repository;
-
-    public GetAllProductsQueryHandler(IRepository<Product> repository)
-    {{
-        _repository = repository;
-    }}
-
-    public async Task<IEnumerable<Product>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
-    {{
-        return await _repository.GetAllAsync(cancellationToken);
-    }}
-}}";
-    
-    private string GetAppDbContextCode() => $@"using Microsoft.EntityFrameworkCore;
-using {_projectName}.Application.Common.Interfaces;
-using {_projectName}.Domain.Entities;
-
-namespace {_projectName}.Infrastructure.Data;
-
-public class AppDbContext : DbContext, IApplicationDbContext
-{{
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) {{ }}
-    
-    public DbSet<Product> Products {{ get; set; }}
-    
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {{
-        base.OnModelCreating(modelBuilder);
-        
-        modelBuilder.Entity<Product>(entity =>
-        {{
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).IsRequired().HasMaxLength(200);
-            entity.Property(e => e.Description).HasMaxLength(1000);
-            entity.Property(e => e.Price).HasPrecision(18, 2);
-        }});
-    }}
-}}";
-    
-    private string GetRepositoryCode() => $@"using Microsoft.EntityFrameworkCore;
-using {_projectName}.Application.Common.Interfaces;
-using {_projectName}.Infrastructure.Data;
-
-namespace {_projectName}.Infrastructure.Repositories;
-
-public class Repository<T> : IRepository<T> where T : class
-{{
-    private readonly AppDbContext _context;
-    private readonly DbSet<T> _dbSet;
-    
-    public Repository(AppDbContext context)
-    {{
-        _context = context;
-        _dbSet = context.Set<T>();
-    }}
-    
-    public async Task<T?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
-    {{
-        return await _dbSet.FindAsync(new object[] {{ id }}, cancellationToken);
-    }}
-    
-    public async Task<IEnumerable<T>> GetAllAsync(CancellationToken cancellationToken = default)
-    {{
-        return await _dbSet.ToListAsync(cancellationToken);
-    }}
-    
-    public async Task<T> AddAsync(T entity, CancellationToken cancellationToken = default)
-    {{
-        await _dbSet.AddAsync(entity, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
-        return entity;
-    }}
-    
-    public async Task UpdateAsync(T entity, CancellationToken cancellationToken = default)
-    {{
-        _dbSet.Update(entity);
-        await _context.SaveChangesAsync(cancellationToken);
-    }}
-    
-    public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
-    {{
-        var entity = await GetByIdAsync(id, cancellationToken);
-        if (entity != null)
-        {{
-            _dbSet.Remove(entity);
-            await _context.SaveChangesAsync(cancellationToken);
-        }}
-    }}
-}}";
-    
-    private string GetInfrastructureDICode() => $@"using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using {_projectName}.Application.Common.Interfaces;
-using {_projectName}.Infrastructure.Data;
-using {_projectName}.Infrastructure.Repositories;
-
-namespace {_projectName}.Infrastructure;
-
-public static class DependencyInjection
-{{
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
-    {{
-        var connectionString = configuration.GetConnectionString(""DefaultConnection"");
-        
-        // Use InMemory for demo, switch to SQL Server for production
-        services.AddDbContext<AppDbContext>(options =>
-            options.UseInMemoryDatabase(""CleanArchDb""));
-        
-        // For SQL Server, uncomment:
-        // services.AddDbContext<AppDbContext>(options =>
-        //     options.UseSqlServer(connectionString));
-        
-        services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<AppDbContext>());
-        services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-        
-        return services;
-    }}
-}}";
-    
-    private string GetProgramCode() => $@"using {_projectName}.Application;
-using {_projectName}.Infrastructure;
-
-var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// Add Application layer (MediatR + FluentValidation)
-builder.Services.AddApplication();
-
-// Add Infrastructure layer (EF Core + Repositories)
-builder.Services.AddInfrastructure(builder.Configuration);
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline
-if (app.Environment.IsDevelopment())
-{{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}}
-
-app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
-
-app.Run();";
-    
-    private string GetProductsControllerCode() => $@"using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using {_projectName}.Application.Products.Commands.CreateProduct;
-using {_projectName}.Application.Products.Commands.UpdateProduct;
-using {_projectName}.Application.Products.Commands.DeleteProduct;
-using {_projectName}.Application.Products.Queries.GetProductById;
-using {_projectName}.Application.Products.Queries.GetAllProducts;
-
-namespace {_projectName}.Api.Controllers;
-
-[ApiController]
-[Route(""api/[controller]"")]
-public class ProductsController : ControllerBase
-{{
-    private readonly IMediator _mediator;
-
-    public ProductsController(IMediator mediator)
-    {{
-        _mediator = mediator;
-    }}
-
-    /// <summary>
-    /// Get all products
-    /// </summary>
-    [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
-    {{
-        var query = new GetAllProductsQuery();
-        var products = await _mediator.Send(query, cancellationToken);
-        return Ok(products);
-    }}
-
-    /// <summary>
-    /// Get product by ID
-    /// </summary>
-    [HttpGet(""{{id}}"")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
-    {{
-        var query = new GetProductByIdQuery(id);
-        var product = await _mediator.Send(query, cancellationToken);
-        return product == null ? NotFound() : Ok(product);
-    }}
-
-    /// <summary>
-    /// Create a new product
-    /// </summary>
-    [HttpPost]
-    [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<IActionResult> Create([FromBody] CreateProductCommand command, CancellationToken cancellationToken)
-    {{
-        var productId = await _mediator.Send(command, cancellationToken);
-        return CreatedAtAction(nameof(GetById), new {{ id = productId }}, productId);
-    }}
-
-    /// <summary>
-    /// Update an existing product
-    /// </summary>
-    [HttpPut(""{{id}}"")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Update(Guid id, [FromBody] UpdateProductCommand command, CancellationToken cancellationToken)
-    {{
-        if (id != command.Id) 
-            return BadRequest(""ID mismatch"");
-            
-        await _mediator.Send(command, cancellationToken);
-        return NoContent();
-    }}
-
-    /// <summary>
-    /// Delete a product
-    /// </summary>
-    [HttpDelete(""{{id}}"")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken)
-    {{
-        var command = new DeleteProductCommand(id);
-        await _mediator.Send(command, cancellationToken);
-        return NoContent();
-    }}
-}}";
-    
-        private string GetAppSettingsCode() => $"{{\n  \"ConnectionStrings\": {{\n    \"DefaultConnection\": \"Server=(localdb)\\\\mssqllocaldb;Database={_projectName};Trusted_Connection=True;\"\n  }},\n  \"Logging\": {{\n    \"LogLevel\": {{\n      \"Default\": \"Information\",\n      \"Microsoft\": \"Warning\",\n      \"Microsoft.Hosting.Lifetime\": \"Information\"\n    }}\n  }},\n  \"AllowedHosts\": \"*\"\n}}";
-
-    private string GetLaunchSettingsCode() => $@"{{
-  ""profiles"": {{
-    ""{_projectName}.Api"": {{
-      ""commandName"": ""Project"",
-      ""dotnetRunMessages"": true,
-      ""launchBrowser"": true,
-      ""launchUrl"": ""swagger"",
-      ""applicationUrl"": ""https://localhost:5001;http://localhost:5000"",
-      ""environmentVariables"": {{
-        ""ASPNETCORE_ENVIRONMENT"": ""Development""
-      }}
-    }}
-  }}
-}}";
-
 }
-    
